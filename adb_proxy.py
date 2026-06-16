@@ -1,9 +1,13 @@
 from flask import Flask, request, jsonify, send_file
-import os, subprocess
+import subprocess
+import os
 
 app = Flask(__name__)
 
-# Allowed commands
+# ============================================================
+# Allowed Commands
+# ============================================================
+
 ALLOWED = [
     "adb shell input keyevent",
     "adb shell df -h",
@@ -26,44 +30,93 @@ def is_allowed(command: str):
     return any(command.startswith(prefix) for prefix in ALLOWED)
 
 
+# ============================================================
+# Web UI
+# ============================================================
+
 @app.route("/")
 def index():
     return send_file("remote_control.html")
 
 
+# ============================================================
+# Device Discovery
+# ============================================================
+
 @app.route("/discover")
 def discover():
-    """Scan the local network for devices with ADB port 5555 open.
-    Returns JSON: {"hosts": ["192.168.1.15", ...]}
-    The helper script is OS‑specific and placed in the repo.
-    """
-    script = "discover_projector.sh" if os.name != "nt" else "discover_projector.bat"
-    if not os.path.exists(script):
-        return jsonify({"hosts": []})
-    try:
-        result = subprocess.run(
-            ["bash", "-c", f"./{script}"],
-            shell=False,
-            capture_output=True,
-            text=True,
-            timeout=30,
-        )
-        hosts = [line.strip() for line in result.stdout.splitlines() if line.strip()]
-        return jsonify({"hosts": hosts})
-    except Exception as e:
-        return jsonify({"hosts": [], "error": str(e)}), 500
 
+    script = (
+        "discover_projector.bat"
+        if os.name == "nt"
+        else "discover_projector.sh"
+    )
+
+    if not os.path.exists(script):
+        return jsonify({
+            "hosts": [],
+            "error": f"{script} not found"
+        })
+
+    try:
+
+        if os.name == "nt":
+
+            result = subprocess.run(
+                [script],
+                shell=True,
+                capture_output=True,
+                text=True,
+                timeout=60
+            )
+
+        else:
+
+            result = subprocess.run(
+                ["bash", script],
+                capture_output=True,
+                text=True,
+                timeout=60
+            )
+
+        hosts = [
+            line.strip()
+            for line in result.stdout.splitlines()
+            if line.strip()
+        ]
+
+        return jsonify({
+            "hosts": hosts
+        })
+
+    except Exception as e:
+
+        return jsonify({
+            "hosts": [],
+            "error": str(e)
+        }), 500
+
+
+# ============================================================
+# ADB Command Endpoint
+# ============================================================
+
+@app.route("/adb", methods=["POST"])
+def run_adb():
 
     data = request.get_json(silent=True) or {}
+
     command = data.get("command", "").strip()
 
     if not command:
+
         return jsonify({
             "success": False,
             "output": "No command provided"
         }), 400
 
     if not is_allowed(command):
+
         return jsonify({
             "success": False,
             "output": f"Command not allowed: {command}"
@@ -72,17 +125,26 @@ def discover():
     print(f"[ADB] {command}")
 
     try:
+
+        timeout = 30
+
+        if (
+            command.startswith("adb push")
+            or command.startswith("adb pull")
+        ):
+            timeout = 3600
+
         result = subprocess.run(
             command,
             shell=True,
             capture_output=True,
             text=True,
-            timeout=600
+            timeout=timeout
         )
 
         output = (
-            (result.stdout or "") +
-            (result.stderr or "")
+            (result.stdout or "")
+            + (result.stderr or "")
         ).strip()
 
         if not output:
@@ -94,26 +156,39 @@ def discover():
         })
 
     except subprocess.TimeoutExpired:
+
         return jsonify({
             "success": False,
             "output": "Command timed out"
         }), 504
 
     except Exception as e:
+
         return jsonify({
             "success": False,
             "output": str(e)
         }), 500
 
 
+# ============================================================
+# Startup
+# ============================================================
+
 if __name__ == "__main__":
-    # Bind to configurable host/port via environment variables (default localhost:5000)
-    host = os.getenv('SCRD_HOST', '127.0.0.1')
-    port = int(os.getenv('SCRD_PORT', '5000'))
+
+    host = os.getenv("SCRD_HOST", "127.0.0.1")
+    port = int(os.getenv("SCRD_PORT", "5000"))
+
     print("=" * 50)
-    print("Screendroid Server")
+    print(" Screendroid Server")
     print("=" * 50)
-    print(f"Web UI : http://{host}:{port}")
-    print(f"API    : http://{host}:{port}/adb")
+    print(f" Web UI : http://{host}:{port}")
+    print(f" API    : http://{host}:{port}/adb")
+    print(f" Scan   : http://{host}:{port}/discover")
     print("=" * 50)
-    app.run(host=host, port=port, debug=False)
+
+    app.run(
+        host=host,
+        port=port,
+        debug=False
+    )
