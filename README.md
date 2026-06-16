@@ -16,7 +16,7 @@ All actions are sent over HTTP to `http://<host>:<port>/adb` and the proxy valid
 ## Quick‑Start (Linux/macOS)
 ```bash
 # 1️⃣ Clone the repo
-git clone https://github.com/<YOUR_USERNAME>/Screendroid.git
+git clone https://github.com/azranfainaus/Screendroid.git
 cd Screendroid
 
 # 2️⃣ Create a virtual environment and install Flask
@@ -36,7 +36,7 @@ The UI will be available at **`http://localhost:8000/`**.  Open it in a browser 
 ## Quick‑Start (Windows) – using `run.bat`
 ```bat
 rem 1️⃣ Clone the repo (Git Bash or PowerShell)
-git clone https://github.com/<YOUR_USERNAME>/Screendroid.git
+git clone https://github.com/azranfainaus/Screendroid.git
 cd Screendroid
 
 rem 2️⃣ Create a virtual environment and install Flask
