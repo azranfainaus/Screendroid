@@ -1,0 +1,302 @@
+# Screendroid - Installation Guide
+
+Screendroid allows you to remotely control an Android TV, projector, or Android device through a web interface using ADB (Android Debug Bridge).
+
+---
+
+# Prerequisites
+
+Before running Screendroid, ensure you have:
+
+* Python 3.10 or newer
+* ADB (Android Debug Bridge)
+* An Android TV, projector, or Android device
+* USB Debugging or Wireless Debugging enabled
+* Device and computer connected to the same network
+
+---
+
+# 1. Install Python
+
+Verify that Python is installed.
+
+### macOS / Linux
+
+```bash
+python3 --version
+```
+
+### Windows
+
+```cmd
+python --version
+```
+
+If Python is not installed, download it from:
+
+https://www.python.org/downloads/
+
+---
+
+# 2. Install ADB
+
+## macOS
+
+```bash
+brew install android-platform-tools
+```
+
+## Ubuntu / Debian
+
+```bash
+sudo apt update
+sudo apt install android-tools-adb
+```
+
+## Windows
+
+Using Chocolatey:
+
+```cmd
+choco install adb
+```
+
+Or download Google's Platform Tools manually:
+
+https://developer.android.com/tools/releases/platform-tools
+
+---
+
+# 3. Verify ADB Installation
+
+Run:
+
+```bash
+adb version
+```
+
+You should see the installed ADB version information.
+
+Example:
+
+```text
+Android Debug Bridge version 1.0.41
+Version 36.x.x
+```
+
+---
+
+# 4. Create a Virtual Environment
+
+Navigate to the Screendroid project directory.
+
+## macOS / Linux
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+## Windows
+
+```cmd
+python -m venv venv
+venv\Scripts\activate
+```
+
+---
+
+# 5. Install Python Dependencies
+
+Install the required Python packages:
+
+```bash
+pip install -r requirements.txt
+```
+
+Or install Flask manually:
+
+```bash
+pip install flask
+```
+
+---
+
+# 6. Connect Your Android Device
+
+## Option 1: Wireless ADB (Recommended)
+
+Ensure your Android TV/projector supports Wireless Debugging or ADB over Network.
+
+Find the IP address of your TV/projector.
+
+Example:
+
+```text
+192.168.1.10
+```
+
+Connect using ADB:
+
+```bash
+adb connect 192.168.1.10:5555
+```
+
+Verify the connection:
+
+```bash
+adb devices
+```
+
+Expected output:
+
+```text
+List of devices attached
+192.168.1.10:5555    device
+```
+
+---
+
+## Option 2: USB Connection
+
+Connect your Android device using a USB cable.
+
+Verify the connection:
+
+```bash
+adb devices
+```
+
+Expected output:
+
+```text
+List of devices attached
+XXXXXXXXXXXX    device
+```
+
+If prompted, accept the USB debugging authorization request on the device.
+
+---
+
+# 7. Start Screendroid
+
+Launch the Flask server:
+
+```bash
+python3 adb_proxy.py
+```
+
+Expected output:
+
+```text
+* Running on http://127.0.0.1:5000
+```
+
+---
+
+# 8. Open the Remote Control Interface
+
+Open your browser and navigate to:
+
+http://127.0.0.1:5000
+
+The Screendroid web interface will load automatically.
+
+---
+
+# Troubleshooting
+
+## adb command not found
+
+Ensure ADB is installed and available in your system PATH.
+
+Verify installation:
+
+```bash
+adb version
+```
+
+---
+
+## Flask module not found
+
+Activate your virtual environment and reinstall dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Or:
+
+```bash
+pip install flask
+```
+
+Make sure you are running python3 adb_proxy.py in your virtual environment
+
+
+---
+
+## Device Not Detected
+
+Verify the connection:
+
+```bash
+adb devices
+```
+
+### For USB Connections
+
+* Enable Developer Options.
+* Enable USB Debugging.
+* Accept the debugging authorization prompt.
+
+### For Wireless Connections
+
+* Ensure the device and computer are on the same network.
+* Verify the device IP address.
+* Ensure Wireless Debugging or ADB over Network is enabled.
+* Retry the connection:
+
+```bash
+adb connect DEVICE_IP:5555
+```
+
+Example:
+
+```bash
+adb connect 192.168.1.10:5555
+```
+
+---
+
+## Connection Refused
+
+If `adb connect` fails:
+
+1. Verify the IP address.
+2. Ensure ADB over Network is enabled on the device.
+3. Restart the ADB server:
+
+```bash
+adb kill-server
+adb start-server
+```
+
+Then reconnect:
+
+```bash
+adb connect DEVICE_IP:5555
+```
+
+---
+
+# You're Ready
+
+Once the device appears in:
+
+```bash
+adb devices
+```
+
+and the Flask server is running, Screendroid is ready to control your Android TV/projector.

@@ -1,0 +1,24 @@
+# Screendroid
+
+**Screendroid** is a lightweight, IP-based remote control system for Android TVs, projectors, and Android devices. It allows you to control your device directly from a web browser using ADB (Android Debug Bridge) over your local network.
+
+Unlike many remote-control solutions, Screendroid requires **no third-party application installation** on the target device. If ADB is available, you're ready to go.
+
+## Features
+
+* 📺 Remote control Android TVs and projectors from any web browser
+* 🌐 Connect over your local network using the device's IP address
+* 📂 Transfer files wirelessly using ADB Push and Pull
+* 🎮 Navigation controls (D-Pad, Home, Back, Menu, OK)
+* 🔊 Volume and media controls
+* ⚡ Launch and manage Android applications remotely
+* 📸 Capture screenshots directly from the device
+* 🔋 View device information such as battery, storage, and OS version
+* 🚫 No additional apps required on the Android device
+* 💰 Completely free and open source
+
+## Why Screendroid?
+
+Screendroid combines remote control, device management, and wireless file transfer into a single web-based interface. Whether you're managing an Android projector, TV box, smart TV, or another Android-powered device, Screendroid provides a simple and efficient way to control it from your computer without relying on proprietary software or paid services.
+
+Built for convenience, powered by ADB, and designed to stay lightweight.

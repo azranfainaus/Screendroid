@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Screendroid Remote Control</title>
+<style>
+:root{
+    --bg:#0b0d12;
+    --panel:#171b24;
+    --panel-2:#202634;
+    --text:#f2f5ff;
+    --muted:#9ca8c7;
+    --accent:#3d8bff;
+    --accent-glow:rgba(61,139,255,.45);
+    --danger:#ff4d4d;
+    --danger-glow:rgba(255,77,77,.4);
+    --btn:#252c3b;
+    --btn-hover:#313b50;
+}
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    padding:24px;
+    font-family:Inter,Segoe UI,Arial,sans-serif;
+    background:
+        radial-gradient(circle at top,#1b2232 0%,#0b0d12 45%),
+        var(--bg);
+    color:var(--text);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    min-height:100vh;
+}
+
+h1{
+    margin:0 0 24px;
+    font-size:2rem;
+    font-weight:700;
+    letter-spacing:.5px;
+    text-shadow:0 0 15px rgba(255,255,255,.08);
+}
+
+.section{
+    width:100%;
+    max-width:900px;
+    margin-bottom:20px;
+    padding:20px;
+    border-radius:28px;
+    background:linear-gradient(
+        180deg,
+        var(--panel-2) 0%,
+        var(--panel) 100%
+    );
+    border:1px solid rgba(255,255,255,.05);
+    box-shadow:
+        0 12px 30px rgba(0,0,0,.45),
+        inset 0 1px 0 rgba(255,255,255,.06);
+}
+
+.section-title{
+    margin:0 0 14px;
+    color:#7fb3ff;
+    font-size:1rem;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:1.5px;
+}
+
+.grid{
+    display:grid;
+    gap:12px;
+    grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+}
+
+button{
+    position:relative;
+    overflow:hidden;
+    min-height:58px;
+    border:none;
+    border-radius:18px;
+    background:linear-gradient(
+        180deg,
+        #343d51 0%,
+        var(--btn) 100%
+    );
+    color:var(--text);
+    font-size:.95rem;
+    font-weight:600;
+    cursor:pointer;
+
+    box-shadow:
+        0 6px 16px rgba(0,0,0,.45),
+        inset 0 1px 0 rgba(255,255,255,.12),
+        inset 0 -3px 6px rgba(0,0,0,.25);
+
+    transition:
+        transform .12s ease,
+        background .2s ease,
+        box-shadow .2s ease;
+}
+
+button::before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    height:45%;
+    background:linear-gradient(
+        to bottom,
+        rgba(255,255,255,.12),
+        transparent
+    );
+    pointer-events:none;
+}
+
+button:hover{
+    background:linear-gradient(
+        180deg,
+        #41516d 0%,
+        var(--btn-hover) 100%
+    );
+    transform:translateY(-2px);
+    box-shadow:
+        0 0 0 1px rgba(255,255,255,.06),
+        0 0 18px rgba(61,139,255,.18),
+        0 8px 18px rgba(0,0,0,.5);
+}
+
+button:active{
+    transform:translateY(2px);
+    box-shadow:
+        inset 0 3px 10px rgba(0,0,0,.4),
+        0 2px 6px rgba(0,0,0,.3);
+}
+
+/* Blue glowing OK button */
+button[onclick*="keyevent 23"]{
+    background:linear-gradient(
+        180deg,
+        #4ca0ff 0%,
+        #1d6dff 100%
+    );
+    color:white;
+    box-shadow:
+        0 0 25px var(--accent-glow),
+        0 6px 16px rgba(0,0,0,.5);
+}
+
+button[onclick*="keyevent 23"]:hover{
+    box-shadow:
+        0 0 35px var(--accent-glow),
+        0 0 8px rgba(255,255,255,.25);
+}
+
+/* Red Power button */
+button[onclick*="KEYCODE_POWER"]{
+    background:linear-gradient(
+        180deg,
+        #ff6a6a 0%,
+        #d92929 100%
+    );
+    box-shadow:
+        0 0 20px var(--danger-glow),
+        0 6px 16px rgba(0,0,0,.45);
+}
+
+button[onclick*="KEYCODE_POWER"]:hover{
+    box-shadow:
+        0 0 30px var(--danger-glow),
+        0 8px 20px rgba(0,0,0,.55);
+}
+
+textarea{
+    width:100%;
+    max-width:900px;
+    height:220px;
+    margin-top:12px;
+    padding:16px;
+
+    background:#05070b;
+    color:#6dff8d;
+
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:20px;
+
+    font-family:
+        JetBrains Mono,
+        Consolas,
+        monospace;
+
+    font-size:.9rem;
+
+    box-shadow:
+        inset 0 0 20px rgba(0,0,0,.8),
+        0 10px 24px rgba(0,0,0,.35);
+
+    resize:vertical;
+}
+
+textarea:focus{
+    outline:none;
+    border-color:var(--accent);
+    box-shadow:
+        0 0 0 3px rgba(61,139,255,.15),
+        inset 0 0 20px rgba(0,0,0,.8);
+}
+
+@media (max-width:768px){
+
+    body{
+        padding:14px;
+    }
+
+    .section{
+        padding:16px;
+        border-radius:22px;
+    }
+
+    .grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    button{
+        min-height:64px;
+        font-size:.9rem;
+    }
+
+    h1{
+        font-size:1.5rem;
+    }
+}
+</style>
+</head>
+<body>
+  <h1>📺 Screendroid Remote UI</h1>
+
+  <!-- Navigation -->
+  <div class="section">
+    <div class="section-title">Navigation</div>
+    <div class="grid">
+      <button onclick="send('adb shell input keyevent 19')">↑ Up</button>
+      <button onclick="send('adb shell input keyevent 20')">↓ Down</button>
+      <button onclick="send('adb shell input keyevent 21')">← Left</button>
+      <button onclick="send('adb shell input keyevent 22')">→ Right</button>
+      <button onclick="send('adb shell input keyevent 23')">OK</button>
+      <button onclick="send('adb shell input keyevent 4')">Back</button>
+      <button onclick="send('adb shell input keyevent 3')">Home</button>
+      <button onclick="send('adb shell input keyevent 82')">Menu</button>
+    </div>
+  </div>
+
+  <!-- System -->
+  <div class="section">
+    <div class="section-title">System</div>
+    <div class="grid">
+      <button onclick="send('adb shell input keyevent KEYCODE_POWER')">Power Toggle</button>
+      <button onclick="send('adb shell df -h')">Storage Info</button>
+      <button onclick="send('adb shell dumpsys battery')">Battery Info</button>
+    </div>
+  </div>
+
+  <!-- Volume -->
+  <div class="section">
+    <div class="section-title">Volume</div>
+    <div class="grid">
+      <button onclick="send('adb shell input keyevent 24')">Vol +</button>
+      <button onclick="send('adb shell input keyevent 25')">Vol -</button>
+      <button onclick="send('adb shell input keyevent 164')">Mute</button>
+    </div>
+  </div>
+
+  <!-- Media -->
+  <div class="section">
+    <div class="section-title">Media</div>
+    <div class="grid">
+      <button onclick="send('adb shell input keyevent 85')">Play / Pause</button>
+      <button onclick="send('adb shell input keyevent 86')">Stop</button>
+      <button onclick="send('adb shell input keyevent 87')">Next</button>
+      <button onclick="send('adb shell input keyevent 88')">Prev</button>
+    </div>
+  </div>
+
+  <!-- File Management -->
+  <div class="section">
+    <div class="section-title">File Management</div>
+    <div class="grid">
+      <button onclick="uploadFile()">Upload → /sdcard/Download/</button>
+      <button onclick="sendPrompt('adb pull', 'Enter remote filename to download')">Download ← /sdcard/Download/</button>
+      <button onclick="send('adb shell ls /sdcard/Download/')">List Downloads</button>
+    </div>
+  </div>
+
+  <!-- Connection Management -->
+  <div class="section">
+    <div class="section-title">Connection</div>
+    <div class="grid">
+      <button onclick="discoverHost()">Detect Projector</button>
+      <button onclick="send(`adb connect ${host()}`)">Connect</button>
+      <button onclick="send('adb disconnect')">Disconnect</button>
+      <button onclick="send('adb devices')">Device List</button>
+      <button onclick="changeHost()">Change Host</button>
+    </div>
+  </div>
+
+  <!-- Host prompt modal (hidden by default) -->
+  <div id="hostModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); align-items:center; justify-content:center;">
+    <div style="background:var(--panel); padding:24px; border-radius:12px; max-width:360px; width:100%; text-align:center;">
+      <h2 style="margin-top:0; color:var(--accent);">Projector address</h2>
+      <p style="color:var(--muted);">Enter the IP address (and optional port) of the Android TV/Projector, e.g. <code>192.168.1.15:5555</code></p>
+      <input id="hostInput" type="text" placeholder="192.168.1.xx:5555" style="width:100%; padding:8px; margin:12px 0; border-radius:6px; border:none; background:#101217; color:#e0e0ff;" />
+      <br/>
+      <button onclick="saveHost()" style="margin-right:8px; background:var(--accent); color:#fff;">Save</button>
+      <button onclick="closeHostModal()" style="background:#444; color:#fff;">Cancel</button>
+    </div>
+  </div>
+
+  <script>
+    // -------------------------------------------------------------
+    // Helper to read/write the stored host
+    // -------------------------------------------------------------
+    const HOST_KEY = 'screendroidHost';
+
+    function host() {
+      return localStorage.getItem(HOST_KEY) || '';
+    }
+
+    function changeHost() {
+      document.getElementById('hostInput').value = host();
+      document.getElementById('hostModal').style.display = 'flex';
+    }
+
+    function saveHost() {
+      const val = document.getElementById('hostInput').value.trim();
+      if (!val) { alert('Please enter a host address'); return; }
+      localStorage.setItem(HOST_KEY, val);
+      closeHostModal();
+    }
+
+    function closeHostModal() { document.getElementById('hostModal').style.display = 'none'; }
+
+    // -------------------------------------------------------------
+    // Detect projector – ask the backend to scan and return first IP
+    // -------------------------------------------------------------
+    async function discoverHost() {
+      try {
+        const resp = await fetch('/discover');
+        const data = await resp.json();
+        if (data.hosts && data.hosts.length) {
+          const found = data.hosts[0];
+          const full = `${found}:5555`;
+          localStorage.setItem(HOST_KEY, full);
+          alert(`Detected projector at ${full}`);
+        } else {
+          alert('No projector found on the local network.');
+        }
+      } catch (e) {
+        alert('Discovery failed: ' + e);
+      }
+    }
+
+    // Prompt for host on first load if not set yet
+    window.addEventListener('load', () => {
+      if (!host()) {
+        document.getElementById('hostModal').style.display = 'flex';
+      }
+    });
+
+    // Existing functions (send, sendPrompt, log, keyboard handling) stay unchanged …
+  </script>
+
+  <!-- Advanced Tools -->
+  <div class="section">
+    <div class="section-title">Advanced Tools</div>
+    <div class="grid">
+      <button onclick="send('adb shell screencap -p /sdcard/screen.png && adb pull /sdcard/screen.png ./screen.png')">Capture Screenshot</button>
+      <button onclick="sendPrompt('adb shell pm list packages | grep', 'Search keyword')">Search Packages</button>
+      <button onclick="sendPrompt('adb shell monkey -p', 'Package name to launch')">Launch App</button>
+      <button onclick="sendPrompt('adb shell am force-stop', 'Package name to force‑close')">Force‑Close App</button>
+      <button onclick="send('adb shell getprop ro.build.version.release')">OS Version</button>
+    </div>
+  </div>
+
+  <textarea id="log" readonly placeholder="Command output will appear here…"></textarea>
+
+  <script>
+const logArea = document.getElementById('log');
+
+function log(message) {
+    logArea.value += message + '\n';
+    logArea.scrollTop = logArea.scrollHeight;
+}
+
+function clearLog() {
+    logArea.value = '';
+}
+
+async function send(command) {
+
+    log(`▶ ${command}`);
+
+    try {
+
+        const response = await fetch('/adb', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                command: command
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+
+            if (data.output) {
+                log(data.output);
+            } else {
+                log('✅ Success');
+            }
+
+        } else {
+
+            log(`❌ ${data.output || data.error}`);
+
+        }
+
+    } catch (err) {
+
+        log(`❌ Request failed: ${err.message}`);
+
+    }
+}
+
+function sendPrompt(baseCommand, promptText) {
+
+    const value = prompt(promptText);
+
+    if (!value) return;
+
+    send(`${baseCommand} ${value}`);
+}
+
+function uploadFile() {
+
+    const localFile = prompt('Enter local file path');
+
+    if (!localFile) return;
+
+    const filename = localFile.split(/[\\/]/).pop();
+
+    send(
+        `adb push "${localFile}" "/sdcard/Download/${filename}"`
+    );
+}
+
+/* Keyboard Shortcuts */
+
+const keyMap = {
+    ArrowUp: 'adb shell input keyevent 19',
+    ArrowDown: 'adb shell input keyevent 20',
+    ArrowLeft: 'adb shell input keyevent 21',
+    ArrowRight: 'adb shell input keyevent 22',
+    Enter: 'adb shell input keyevent 23',
+    Backspace: 'adb shell input keyevent 4',
+    '+': 'adb shell input keyevent 24',
+    '-': 'adb shell input keyevent 25',
+    '*': 'adb shell input keyevent 164'
+};
+
+let typeBuffer = '';
+let typeTimer = null;
+
+function escapeForADB(text) {
+
+    return text
+        .replace(/%/g, '%25')
+        .replace(/ /g, '%s');
+}
+
+function flushTyped() {
+
+    if (!typeBuffer) return;
+
+    send(
+        `adb shell input text ${escapeForADB(typeBuffer)}`
+    );
+
+    typeBuffer = '';
+}
+
+document.addEventListener('keydown', (event) => {
+
+    if (event.target.tagName === 'TEXTAREA') {
+        return;
+    }
+
+    if (
+        keyMap[event.key] &&
+        !event.ctrlKey &&
+        !event.altKey &&
+        !event.metaKey
+    ) {
+
+        event.preventDefault();
+
+        send(keyMap[event.key]);
+
+        return;
+    }
+
+    if (
+        event.key.length === 1 &&
+        !event.ctrlKey &&
+        !event.altKey &&
+        !event.metaKey
+    ) {
+
+        typeBuffer += event.key;
+
+        clearTimeout(typeTimer);
+
+        typeTimer = setTimeout(
+            flushTyped,
+            500
+        );
+    }
+
+});
+
+window.addEventListener('load', async () => {
+
+    try {
+
+        const response = await fetch('/adb', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                command: 'adb devices'
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            log('✅ Screendroid connected');
+            log(data.output);
+        }
+
+    } catch {
+
+        log('❌ Unable to reach Screendroid server');
+    }
+
+});
+</script>
+</body>
+</html>
